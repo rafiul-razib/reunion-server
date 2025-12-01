@@ -8,7 +8,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendConfirmationEmail(toEmail, name, tranId) {
+async function sendConfirmationEmail(toEmail, name, tranId, qrImageURL) {
   return transporter.sendMail({
     from: `CPSCM Reunion <${process.env.EMAIL_USER}>`,
     to: toEmail,
@@ -18,10 +18,20 @@ async function sendConfirmationEmail(toEmail, name, tranId) {
       <p>Your registration payment was successful.</p>
       <p><strong>Transaction ID:</strong> ${tranId}</p>
       <p>We are excited to see you at the reunion!</p>
+      <p>Show this QR at the entrance:</p>
+      <img src="cid:qrImage" style="width:200px; height:auto;" />
       <br/>
       <p>Warm regards,</p>
       <p>CPSCM Reunion Team</p>
     `,
+    attachments: [
+      {
+        filename: "qr.png",
+        content: qrImageURL.split("base64,")[1],
+        encoding: "base64",
+        cid: "qrImage", // same as in HTML <img src="cid:qrImage">
+      }
+    ]
   });
 }
 

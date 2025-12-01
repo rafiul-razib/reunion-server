@@ -1,8 +1,10 @@
 const express = require("express");
+const QRCode = require("qrcode");
 const SSLCommerzPayment = require('sslcommerz-lts')
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
+
 
 
 
@@ -54,10 +56,11 @@ async function run() {
     });
 
 
-    const tran_id = new ObjectId().toString();
+    
 
     // (Optional) Add member
     app.post("/register", async (req, res) => {
+      const tran_id = new ObjectId().toString();
       const payload = req.body
       console.log(payload);
       const guests = req.body.guests;
@@ -104,7 +107,7 @@ async function run() {
         let GatewayPageURL = apiResponse.GatewayPageURL
       res.send({ url: GatewayPageURL })
       const finalOrder = {
-        ...payload, paymentStatus: false, transactionId: tran_id
+        ...payload, totalAmount: amount, paymentStatus: false, transactionId: tran_id
       }
 
       const result = await allMembersCollection.insertOne(finalOrder);
@@ -115,6 +118,8 @@ async function run() {
 
     app.post("/payment/success/:tran_id", async (req, res) => {
 
+      
+
       console.log("Transaction Id: ", req.params.tran_id);
       
       const result = await allMembersCollection.updateOne({ transactionId: req.params.tran_id }, {
@@ -123,34 +128,38 @@ async function run() {
         }
       })
 
+  
+
+      // After you get tran_id
+      
+
+      const verifyURL = `http://localhost:3000/verifyUser/${req.params.tran_id}`;
+      const qrImageURL = await QRCode.toDataURL(verifyURL);
+
+      // console.log("qrImgURL",qrImageURL);
+
+
+
       if (result.modifiedCount > 0) {
               // Get user data to send email
-          const user = await allMembersCollection.findOne({ transactionId: tran_id });
+          const user = await allMembersCollection.findOne({ transactionId: req.params.tran_id });
 
           // Send confirmation email
-          await sendConfirmationEmail(user.email, user.fullName, tran_id);
+          await sendConfirmationEmail(user.email, user.fullName, req.params.tran_id, qrImageURL);
 
           // Redirect
-          // return res.redirect(`http://localhost:3000/paymentConfirmation/success/${tran_id}`);
+
         res.redirect(`http://localhost:3000/paymentConfirmation/success/${req.params.tran_id}`)
-      // return res.send({
-      //   success: true,
-      //   redirectUrl: `http://localhost:3000/paymentConfirmation/success/${req.params.tran_id}`
-      // });
+
 }
 
-      // try {
-      //   const payload = req.body;
-      //   console.log(payload);
-      //   const guests = req.body.guests;
-      //   const amount = 1700 + guests * 1000;
-      //   console.log("price", amount);
-      //   const result = await allMembersCollection.insertOne(payload);
-      //   res.send(result);
-      // } catch (error) {
-      //   console.error(error);
-      //   res.status(500).send({ error: "Error adding member" });
-      // }
+    })
+
+
+    app.get("/verifyUser/:transactionId", async (req, res) => {
+      const transId = req.params.transactionId;
+      const result = await allMembersCollection.findOne({ transactionId: transId })
+      res.send(result)
     })
 
   } finally {
