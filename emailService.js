@@ -14,15 +14,33 @@ async function sendConfirmationEmail(toEmail, name, tranId, qrImageURL) {
     to: toEmail,
     subject: "Registration Confirmed – CPSCM Reunion 🎉",
     html: `
-      <h2>Dear ${name},</h2>
-      <p>Your registration payment was successful.</p>
-      <p><strong>Transaction ID:</strong> ${tranId}</p>
-      <p>We are excited to see you at the reunion!</p>
-      <p>Show this QR at the entrance:</p>
-      <img src="cid:qrImage" style="width:200px; height:auto;" />
-      <br/>
-      <p>Warm regards,</p>
-      <p>CPSCM Reunion Team</p>
+      <h2 style="font-family: Arial, sans-serif; color: #333;">
+      Dear ${name},
+      </h2>
+
+      <p style="font-family: Arial, sans-serif; color: #444; line-height: 1.6;">
+        We are pleased to inform you that your registration payment has been successfully received.
+      </p>
+
+      <p style="font-family: Arial, sans-serif; color: #444; line-height: 1.6;">
+        <strong>Transaction ID:</strong> ${tranId}
+      </p>
+
+      <p style="font-family: Arial, sans-serif; color: #444; line-height: 1.6;">
+        We look forward to welcoming you to the reunion and sharing an unforgettable event together.
+      </p>
+
+      <p style="font-family: Arial, sans-serif; color: #444; line-height: 1.6; margin-bottom: 10px;">
+        Please present the following QR code at the entrance:
+      </p>
+
+      <img src="cid:qrImage" style="width:200px; height:auto; margin: 10px 0;" />
+
+      <p style="font-family: Arial, sans-serif; color: #444; line-height: 1.6; margin-top: 20px;">
+        Warm regards,<br/>
+        <strong>CPSCM Reunion Team</strong>
+      </p>
+
     `,
     attachments: [
       {

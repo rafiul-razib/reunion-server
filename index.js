@@ -8,7 +8,7 @@ require("dotenv").config();
 
 
 
-app.use(cors());
+app.use(cors({origin: ["http://localhost:3000","https://reunion-cpscm.web.app", "https://reunion-cpscm.firebaseapp.com", "https://reunion-cpscm.vercel.app"]}));
 app.use(express.json());
 
 const port = process.env.PORT || 5000;
@@ -33,9 +33,9 @@ const is_live = false //true for live, false for sandbox
 
 async function run() {
   try {
-    await client.connect();
-    await client.db("admin").command({ ping: 1 });
-    console.log("Connected to MongoDB!");
+    // await client.connect();
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Connected to MongoDB!");
 
     const database = client.db("reunionCpscmDb");
     const allMembersCollection = database.collection("allMembers");
@@ -73,10 +73,10 @@ async function run() {
         total_amount: amount,
         currency: 'BDT',
         tran_id: tran_id, // use unique tran_id for each api call
-        success_url: `http://localhost:5000/payment/success/${tran_id}`,
-        fail_url: 'http://localhost:3030/fail',
-        cancel_url: 'http://localhost:3030/cancel',
-        ipn_url: 'http://localhost:3030/ipn',
+        success_url: `https://reunion-cpscm-server.vercel.app/payment/success/${tran_id}`,
+        fail_url: 'https://reunion-cpscm-server.vercel.app/fail',
+        cancel_url: 'https://reunion-cpscm-server.vercel.app/cancel',
+        ipn_url: 'https://reunion-cpscm-server.vercel.app/ipn',
         shipping_method: 'Courier',
         product_name: 'CPSCM Reunion',
         product_category: 'Registration',
@@ -133,7 +133,7 @@ async function run() {
       // After you get tran_id
       
 
-      const verifyURL = `http://localhost:3000/verifyUser/${req.params.tran_id}`;
+      const verifyURL = `https://reunion-cpscm.vercel.app/verifyUser/${req.params.tran_id}`;
       const qrImageURL = await QRCode.toDataURL(verifyURL);
 
       // console.log("qrImgURL",qrImageURL);
@@ -149,7 +149,7 @@ async function run() {
 
           // Redirect
 
-        res.redirect(`http://localhost:3000/paymentConfirmation/success/${req.params.tran_id}`)
+        res.redirect(`https://reunion-cpscm.vercel.app/paymentConfirmation/success/${req.params.tran_id}`)
 
 }
 
